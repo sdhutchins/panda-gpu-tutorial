@@ -1,12 +1,15 @@
 # netZooPy GPU Tutorial
 
-A simple tutorial for running **netZooPy** (PANDA / LIONESS) with **CuPy GPU
-acceleration** on an HPC cluster (Open OnDemand, SLURM). The demo uses motif
-and PPI priors downloaded from GRAND; we also document **sponge** so you can
-use motif and PPI priors from sponge instead. Notebooks are compute-only;
-installs happen outside Jupyter.
+This tutorial walks through running **netZooPy** (PANDA / LIONESS) with
+**CuPy GPU acceleration** on an HPC cluster that uses Open OnDemand and SLURM.
+The main demo uses motif and PPI priors downloaded from GRAND. If you want to
+generate those priors instead, the tutorial also documents a **sponge**
+workflow. The notebooks are compute-only, so all software installation happens
+before you open Jupyter.
 
-This tutorial is an update of the [netZooPy gpuPanda tutorial](https://github.com/netZoo/netZooPy/blob/master/tutorials/gpupanda/gpuPanda_tutorial.ipynb) (Daniel Morgan, Channing Division of Network Medicine, Brigham and Women's Hospital / Harvard Medical School).
+This tutorial updates the [netZooPy gpuPanda tutorial](https://github.com/netZoo/netZooPy/blob/master/tutorials/gpupanda/gpuPanda_tutorial.ipynb)
+by Daniel Morgan at the Channing Division of Network Medicine, Brigham and
+Women's Hospital / Harvard Medical School.
 
 ## Table of Contents
 
@@ -21,14 +24,16 @@ This tutorial is an update of the [netZooPy gpuPanda tutorial](https://github.co
 
 ## Prerequisites
 
+Before you begin, confirm that your HPC environment provides:
+
 - Open OnDemand Jupyter app
 - SLURM GPU partition
 - NVIDIA GPU nodes (CUDA 12–compatible, e.g. A100)
 - NVIDIA driver ≥ CUDA 12
-- CUDA runtime provided via modules (no CUDA in conda; will set it up for this later)
+- CUDA runtime provided through modules rather than conda
 - User Miniforge install
 
-Assumed:
+The provided environment assumes:
 
 - `cupy-cuda12x`
 - CUDA module close to `CUDA/12.3.0`
@@ -37,7 +42,9 @@ Assumed:
 
 ### Conda environment (for OOD Jupyter)
 
-Use `config/netzoo-gpu.yml` or the block below:
+The conda environment keeps the Python dependencies used by the Open OnDemand
+Jupyter session together. Create it from `config/netzoo-gpu.yml`, which contains
+the following specification:
 
 ```yaml
 name: netzoo-gpu
@@ -57,16 +64,20 @@ dependencies:
       - cupy-cuda12x
 ```
 
-Notes: CuPy via pip to match system CUDA; CUDA from modules, not conda. NumPy pinned for netZooPy.
+CuPy is installed with pip so that it can use the system CUDA runtime. CUDA
+itself comes from the cluster module, not conda, and NumPy is pinned for
+netZooPy compatibility.
 
 ### Set up the environment
 
-On a hpc, load Miniforge and create/activate the environment, then
-register the Jupyter kernel.
+Run these commands on the HPC system. First, load Miniforge so that the `conda`
+command and its Python installation are available.
 
 ```bash
 module load miniforge/conda
 ```
+
+Next, create and activate the environment.
 
 ```bash
 conda env create -f config/netzoo-gpu.yml
@@ -76,6 +87,9 @@ conda env create -f config/netzoo-gpu.yml
 conda activate netzoo-gpu
 ```
 
+Finally, register the activated environment as a Jupyter kernel. The display
+name is the option you will select when you open the notebook.
+
 ```bash
 python -m ipykernel install --user \
   --name netzoo-gpu \
@@ -84,8 +98,8 @@ python -m ipykernel install --user \
 
 ### Install netZooPy from source
 
-Install `netZooPy` into the `netzoo-gpu` environment from a user-writable
-source directory.
+With `netzoo-gpu` still active, install `netZooPy` from its source repository.
+A user-writable source directory avoids relying on a system-wide installation.
 
 ```bash
 mkdir -p $HOME/src
@@ -100,33 +114,43 @@ pip install -e .
 
 ### Alternative: sponge (motif and PPI priors)
 
-You can use **sponge** to obtain motif and PPI priors instead of the GRAND
-downloads in the demo. For setup, see [using sponge](docs/using-sponge.md) and `config/sponge.yml`.
+**SPONGE** reproducibly generates PANDA-compatible TF–gene motif and TF–TF
+protein-interaction priors from JASPAR and STRING. See
+[Using sponge](docs/using-sponge.md) for the setup and
+`config/sponge.yml` for the configured options.
 
 ## Usage
 
 1. **Start Jupyter on a GPU node (Open OnDemand)**  
-   Load CUDA **before** starting the Jupyter server.
+   Load CUDA **before** starting the Jupyter server so that the notebook can
+   access the requested GPU.
 
    ```bash
    module load CUDA/12.3.0
    ```
 
-   Select kernel: `Python (netzoo-gpu)`.
+   After Jupyter opens, select the `Python (netzoo-gpu)` kernel that you
+   registered during setup.
 
 2. **Run the demo**  
-   Open [panda-gpu-demo.ipynb](panda-gpu-demo.ipynb). It downloads LCL motif and PPI data from GRAND into `data/`, runs PANDA with GPU and precision options, and writes results to `output/`. To use motif and PPI priors from sponge instead, see [Using sponge](docs/using-sponge.md).
+   Open [panda-gpu-demo.ipynb](panda-gpu-demo.ipynb). The notebook downloads
+   LCL motif and PPI data from GRAND into `data/`, runs PANDA with GPU and
+   precision options, and writes the results to `output/`. To replace the
+   GRAND inputs with priors generated by sponge, follow
+   [Using sponge](docs/using-sponge.md).
 
 ## Troubleshooting
 
 ### Verify Python path
+
+Check which Python executable the notebook kernel is using:
 
 ```python
 import sys
 sys.executable
 ```
 
-Expected:
+The path should point to the `netzoo-gpu` environment, for example:
 
 ```text
 .../miniforge3/envs/netzoo-gpu/bin/python
@@ -134,12 +158,14 @@ Expected:
 
 ### Verify GPU access
 
+Ask CuPy how many CUDA devices are available to the notebook:
+
 ```python
 import cupy as cp
 cp.cuda.runtime.getDeviceCount()
 ```
 
-If this fails:
+If the command returns an error or does not find a GPU:
 
 - Confirm a GPU was requested in Open OnDemand
 - Confirm `CUDA/12.3.0` was loaded before Jupyter launch
@@ -183,5 +209,12 @@ View the [LICENSE](LICENSE) for this project.
 
 ## References
 
-- **netZooPy (PANDA, GPU):** [The Network Zoo: a multilingual package for the inference and analysis of gene regulatory networks](https://academic.oup.com/nargab/article/4/1/lqac002/6524305). *NAR Genomics and Bioinformatics* 4(1), lqac002 (2022).
-- **sponge:** [sponge: reproducible Python environments for HPC](https://academic.oup.com/bioinformatics/article/41/7/btaf320/8176566). *Bioinformatics* 41(7), btaf320 (2025).
+- **netZooPy (PANDA, GPU):**
+  [The Network Zoo: a multilingual package for the inference and analysis of gene regulatory networks][netzoo-paper].
+  *NAR Genomics and Bioinformatics* 4(1), lqac002 (2022).
+- **SPONGE:** Hovan L, Kuijjer ML.
+  [SPONGE: simple prior omics network GEnerator][sponge-paper].
+  *Bioinformatics*. 2025;41(7):btaf320.
+
+[netzoo-paper]: https://academic.oup.com/nargab/article/4/1/lqac002/6524305
+[sponge-paper]: https://academic.oup.com/bioinformatics/article/41/7/btaf320/8176566

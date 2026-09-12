@@ -1,8 +1,15 @@
 # Using sponge
 
-**sponge** gives you motif and PPI priors as an alternative to the GRAND downloads in the main demo. This section assumes **netzoopy-sponge v2.1.0** on an HPC system (e.g., Slurm). The goal is a stable, reproducible Python environment you can use in batch jobs without relying on system Python or shell state. We use **Miniforge** (not a separate Python module) to create a venv and install dependencies.
+**sponge** generates motif and PPI priors that you can use instead of the GRAND
+downloads in the main demo. This guide uses **netzoopy-sponge v2.1.0** on an HPC
+system that runs Slurm. The goal is to create a stable, reproducible Python
+environment for batch jobs without depending on system Python or inherited
+shell state. Miniforge provides Python, and a virtual environment keeps the
+sponge dependencies isolated.
 
 ## Prerequisites
+
+Before creating the environment, confirm that you have:
 
 - Access to a cluster login node
 - Miniforge available via `module load miniforge/conda`
@@ -10,7 +17,9 @@
 
 ## Create the virtual environment
 
-Run the following on the cluster (interactively). Python comes from Miniforge.
+Run the following commands in an interactive shell on the cluster. Loading
+Miniforge first ensures that the virtual environment uses its Python
+installation.
 
 ```bash
 module load miniforge/conda
@@ -24,16 +33,24 @@ pip install netzoopy-sponge==2.1.0
 pip freeze > requirements.lock.txt
 ```
 
-The repo’s [requirements.lock.txt](../requirements.lock.txt) was generated this way and pins versions for reproducibility. Use it to recreate the same environment elsewhere (e.g. `pip install -r requirements.lock.txt` in an activated venv).
+The repository's [requirements.lock.txt](../requirements.lock.txt) was generated
+with `pip freeze` and pins the installed package versions for reproducibility.
+To recreate the same environment elsewhere, activate a virtual environment and
+run `pip install -r requirements.lock.txt`.
 
 ## Run sponge with the batch script
 
-The script [src/sponge.sh](../src/sponge.sh) runs netzoopy-sponge in a Slurm job. It:
+The [src/sponge.sh](../src/sponge.sh) script runs netzoopy-sponge as a Slurm
+job. It:
 
 - Loads Miniforge and activates the venv
 - Runs `netzoopy-sponge` with the sponge config [config/sponge.yml](../config/sponge.yml)
 - Writes logs under `logs/` (create that directory if needed)
 
-The YAML sets genome, motif (JASPAR), and PPI options and writes motif and PPI priors (e.g. `data/motif_prior.tsv`, `data/ppi_prior.tsv`). Ensure `venv` and `config/sponge.yml` exist before submitting the job.
+The YAML file defines the genome, motif (JASPAR), and PPI options. The job then
+writes the resulting priors to files such as `data/motif_prior.tsv` and
+`data/ppi_prior.tsv`. Before submitting the job, confirm that both `venv` and
+`config/sponge.yml` exist.
 
-Use the sponge outputs as motif and PPI inputs when running PANDA (see [README](../README.md) for the main tutorial).
+Once the job finishes, use the sponge outputs as the motif and PPI inputs for
+PANDA. Return to the [main tutorial](../README.md) to run the GPU demo.
