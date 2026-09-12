@@ -1,0 +1,16 @@
+name: netzoo-gpu
+channels:
+  - conda-forge
+  - nvidia
+
+dependencies:
+  - python=3.10
+  - pip
+  - numpy<1.24
+  - pandas
+  - psutil
+  - s3fs
+  - ipykernel
+
+  - pip:
+      - cupy-cuda12x
