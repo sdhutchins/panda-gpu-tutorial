@@ -1,7 +1,7 @@
 
-# Contributing to Base Repository Template
+# Contributing to panda-gpu-tutorial
 
-Thank you for your interest in contributing to the **Base Repository Template** project! Contributions are welcome
+Thank you for your interest in contributing to the **panda-gpu-tutorial** project! Contributions are welcome
 and appreciated. Please follow these simple steps to get started:
 
 ## How to Contribute
@@ -30,6 +30,6 @@ and appreciated. Please follow these simple steps to get started:
 ## Reporting Issues
 
 If you encounter a bug or have a suggestion, open an issue in
-the [issues](https://github.com/sdhutchins/base-repository-template/issues) tab and provide details.
+the [issues](https://github.com/sdhutchins/panda-gpu-tutorial/issues) tab and provide details.
 
 Thank you for contributing!
