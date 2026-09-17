@@ -7,8 +7,8 @@
 #SBATCH --time=08:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=54        # use 50 processes/cores
-#SBATCH --mem=120G                # bump if needed
+#SBATCH --cpus-per-task=50        # use 50 processes/cores
+#SBATCH --mem=50G                # bump if needed
 #SBATCH --output=logs/netzoopy_sponge_%j.out
 #SBATCH --error=logs/netzoopy_sponge_%j.err
 

@@ -12,7 +12,7 @@ sponge dependencies isolated.
 Before creating the environment, confirm that you have:
 
 - Access to a cluster login node
-- Miniforge available via `module load miniforge/conda`
+- Miniforge or conda available
 - Enough home or project storage for a venv
 
 ## Create the virtual environment
@@ -22,7 +22,7 @@ Miniforge first ensures that the virtual environment uses its Python
 installation.
 
 ```bash
-module load miniforge/conda
+module load miniforge/conda # use your conda module
 
 python -m venv venv
 source venv/bin/activate
